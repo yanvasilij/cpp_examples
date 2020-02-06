@@ -1,82 +1,53 @@
 
-#include <iostream>
-#include <memory>
-
-#include <hw/inout.h>
 #include <stdio.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <hw/inout.h>
-#include <sys/neutrino.h>
+#include <hw/i2c.h>
+#include <devctl.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdint.h>
-#include <sys/mman.h>
-
-typedef unsigned char u8;
-
-/* Standard definition with offset 1 */
-union frame {
-	struct {
-	    u8	 canid1;
-	    u8	 canid2;
-	    u8	 canid3;
-	    u8	 canid4;
-	    u8   canxdata[8];
-	} extframe;
-	struct {
-	    u8	 canid1;
-	    u8	 canid2;
-	    u8   candata[8];
-	} stdframe;
-};
 
 
-typedef struct canregs {
-	u8	canmode;		/* 0 */
-	u8	cancmd;
-	u8	canstat;
-	u8	canirq;
-	u8	canirq_enable;
-	u8	reserved1;		/* 5 */
-	u8	cantim0;
-	u8	cantim1;
-	u8	canoutc;
-	u8	cantest;
-	u8	reserved2;		/* 10 */
-	u8	arbitrationlost;	/* read only */
-	u8	errorcode;		/* read only */
-	u8	errorwarninglimit;
-	u8	rxerror;
-	u8	txerror;		/* 15 */
-	u8	frameinfo;
-	union   frame frame;
-	u8	reserved3;
-	u8	canrxbufferadr		/* 30 */;
-	u8	canclk;
-} __attribute__((packed)) canregs_t;
+static int I2cWriteMemory_(int fd, uint8_t DeviceId, uint8_t Address, uint32_t NbData, uint8_t MemoryAddress)
+{
+    i2c_send_t hdr;
+    int status;
+    iov_t sv[3];
 
+
+    hdr.slave.addr = Address >> 1;
+    hdr.slave.fmt = I2C_ADDRFMT_7BIT;
+    hdr.len = NbData + sizeof(MemoryAddress);
+    hdr.stop = 1;
+
+    SETIOV(&sv[0], &hdr, sizeof(hdr));
+    SETIOV(&sv[1], &MemoryAddress, sizeof(MemoryAddress));
+    SETIOV(&sv[2], pBuffer, NbData);
+    status = devctlv(fd, DCMD_I2C_SEND, 3, 0, sv, NULL, NULL);
+
+    return status;
+}
 
 int main(int argc, char **argv)
 {
-	//if( (can_base_addr = (canregs_t *) mmap_device_io(31, base_addr )) == (canregs_t *) MAP_DEVICE_FAILED  )
-	//{
-	//		perror("MAP_DEVICE_FAILED");
-	//		exit(EXIT_FAILURE);
-	//}
-	//printf("Base address 0x%04x\n", (unsigned int) can_base_addr);
-	ThreadCtl( _NTO_TCTL_IO, 0 );
+    int i2ch;
+    i2c_driver_info_t i2c_driver_info;
+    i2c_speed_mode_t speed_mode;
+    i2c_send_t send_data;
+    char send_str[2] = {'1', '2'};
 
-	unsigned char preg = in8( (0xC20) );
- 	printf("canmode: 0x%02x\n",  preg);
+    printf("i2c test started!\n");
 
-	preg = in8( (0xC20) + 1);
- 	printf("canmode: 0x%02x\n",  preg);
+    i2ch = open("/dev/i2c0", O_RDWR);
 
- 	preg = in8( (0xC20) + 2);
- 	printf("canmode: 0x%02x\n",  preg);
 
-	preg = in8( (0xC20) + 3);
- 	printf("canmode: 0x%02x\n",  preg);
+    devctl(i2ch, DCMD_I2C_DRIVER_INFO, &i2c_driver_info, sizeof(i2c_driver_info_t), NULL);
+    printf("speed_mode: %d addr_mode: %d\n", i2c_driver_info.speed_mode, i2c_driver_info.addr_mode);
 
-	return 0;
+    while (1)
+    {
+        devctl(i2ch, DCMD_I2C_SEND, send_str, 2, NULL);
+        sleep(1);
+    }
+
+    return 0;
 }
