@@ -32,9 +32,8 @@ int main( )
 
     SIGEV_PULSE_INIT(&sev, coid, SIGEV_PULSE_PRIO_INHERIT, CODE_TIMER, 0);
 
-    sev.sigev_code = 1023;
-    int pulse_id = 0x77777777;
-    sev.sigev_value.sival_ptr = (void*)pulse_id;
+    int msg = 0x77777777;
+    sev.sigev_value.sival_ptr = (void*)msg;
 
     printf("creating timer\n");
     timer_t timerid;
