@@ -136,28 +136,41 @@ int main(int argc, char **argv)
 
     printf("i2c test started!\n");
 
-    i2ch = open("/dev/i2c0", O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
+    i2ch = open("/dev/i2c2", O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
 
-    slave.addr = 0x20;
+    slave.addr = 0x3C;
     slave.fmt = I2C_ADDRFMT_7BIT;
     devctl(i2ch, DCMD_I2C_SET_SLAVE_ADDR, &slave, sizeof(slave), NULL);
 
+    hdc1000_i2c_read(i2ch, 0x00, send_str, 3);
 
-    i2c_write(i2ch, 0x20, send_str, 2);
+    printf("read value: 0x%x 0x%x 0x%x\n", send_str[0], send_str[1], send_str[2]);
 
-    send_str[0] = 0x0A;
-    send_str[1] = 0xFF;
-    i2c_write(i2ch, 0x20, send_str, 2);
+    send_str[0] = 0x03;
+    i2c_write(i2ch, 0x20, send_str, 1);
 
-    while (1)
-    {
-    	send_str[1]++;
-    	i2c_write(i2ch, 0x20, send_str, 2);
-    	usleep(500000);
+    hdc1000_i2c_read(i2ch, 0x20, send_str, 1);
+    printf("read value: 0x%x\n", send_str[0]);
 
-        hdc1000_i2c_read(i2ch, 0x0A, rx_buf, 1);
-        printf("rx buf: 0x%x\n", rx_buf[0]);
-    }
+    send_str[0] = 0x01;
+    i2c_write(i2ch, 0x0A, send_str, 1);
+
+    hdc1000_i2c_read(i2ch, 0x0A, send_str, 1);
+    printf("read value: 0x%x\n", send_str[0]);
+
+    //   send_str[0] = 0x0A;
+ //   send_str[1] = 0xFF;
+ //   i2c_write(i2ch, 0x20, send_str, 2);
+
+ //   while (1)
+ //   {
+ //   	send_str[1]++;
+ //   	i2c_write(i2ch, 0x20, send_str, 2);
+ //   	usleep(500000);
+
+ //       hdc1000_i2c_read(i2ch, 0x0A, rx_buf, 1);
+ //       printf("rx buf: 0x%x\n", rx_buf[0]);
+ //   }
 
 //    while (1)
 //    {
