@@ -1,6 +1,0 @@
-set(gccver "4.8.3")
-
-set(CMAKE_SYSTEM_NAME QNX)
-
-set(CMAKE_C_COMPILER "ntox86-gcc-${gccver}")
-set(CMAKE_CXX_COMPILER "ntox86-g++-${gccver}")
