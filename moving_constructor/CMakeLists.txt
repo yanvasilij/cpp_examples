@@ -1,0 +1,9 @@
+project (moving_constructor)
+cmake_minimum_required(VERSION 3.7)
+
+add_executable(moving_constructor main.cpp)
+set_property(TARGET moving_constructor PROPERTY CXX_STANDARD 11)
+
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-builtin -gdwarf-2 -D_GLIBCXX_USE_C99 -D_QNX_SOURCE -DHAS_C9X")
+
