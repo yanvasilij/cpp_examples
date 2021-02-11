@@ -10,49 +10,47 @@ class Solution {
     std::vector<std::vector<int>> result;
     std::set<std::vector<int>> founded;
 
-    void check (ElementInterator e1, ElementInterator e2, ElementInterator e3, std::vector<int> & nums, bool toRight)
+    void check (ElementInterator e1, ElementInterator e2, ElementInterator e3, std::vector<int> & nums, int lastSum)
     {
         int sum = *e1 + *e2 + *e3;
-
-        if( e3 == nums.end() )
-            return;
-
-        std::cout << *e1 << " " << *e2  << " "<< *e3 << " sum = " << sum << std::endl;
-
-        if (sum==0)
+        std::cout << "sum: " << sum << "-> " << *e1 << " " << *e2 << " " << *e3 << std::endl;
+        if (sum > 0)
         {
-            std::vector<int> c{*e1,*e2,*e3};
-            founded.insert(c);
-            if (toRight)
+            if ( ((e2-1) != e1) && (lastSum > 0))
             {
-                e2++;
-                e3++;
+                e2--;
             }
             else
             {
-                if(e1 == nums.begin() )
+                if (e1 == nums.begin())
                     return;
                 e1--;
-                e2--;
             }
         }
-        else if (sum > 0)
+        else if(sum<0)
         {
-            if (e1 == nums.begin())
-                return;
-            if (!toRight)
-                e2--;
-            e1--;
+            if ( ((e1+1) != e3) && (lastSum < 0) )
+            {
+                e2++;
+            }
+            else
+            {
+                if (e3 == (nums.end()-1))
+                    return;
+                e3++;
+            }
         }
         else
         {
-            if (e3 == nums.end() )
+            founded.insert(std::vector<int>{*e1, *e2, *e3});
+            if (e3 != (nums.end() - 1) )
+                e3++;
+            else if (e1 != nums.begin())
+                e1--;
+            else
                 return;
-            if (toRight)
-                e2++;
-            e3++;
         }
-        check(e1, e2, e3, nums, toRight);
+        check(e1, e2, e3, nums, sum);
     }
 
 public:
@@ -64,10 +62,12 @@ public:
             std::cout << i << " ";
         std::cout << std::endl;
 
-        ElementInterator zeroElement = find (nums.begin(), nums.end(), 0);
+        if (nums.size() < 3)
+            return std::vector<std::vector<int>> {};
 
-        check( (zeroElement-1), zeroElement, (zeroElement+1), nums, true );
-        check( (zeroElement-1), zeroElement, (zeroElement+1), nums, false );
+        ElementInterator zeroElement = nums.begin() + nums.size()/2;
+
+        check( (zeroElement-1), zeroElement, (zeroElement+1), nums, 0 );
 
         for (auto i : founded)
             result.push_back(i);
