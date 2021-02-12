@@ -10,18 +10,30 @@ class Solution {
     std::vector<std::vector<int>> result;
     std::set<std::vector<int>> founded;
 
+    ElementInterator findZeroElement (std::vector<int> & nums)
+    {
+        for (auto i = nums.begin() ; i != nums.end(); i++)
+        {
+            if( *i >= 0 )
+                return i;
+        }
+        return nums.begin();
+    }
+
     void check (ElementInterator e1, ElementInterator e2, ElementInterator e3, std::vector<int> & nums, int lastSum)
     {
         int sum = *e1 + *e2 + *e3;
-        std::cout << "sum: " << sum << "-> " << *e1 << " " << *e2 << " " << *e3 << std::endl;
+        //std::cout << "sum: " << sum << "-> " << *e1 << " " << *e2 << " " << *e3 << " last sum " << lastSum << std::endl;
         if (sum > 0)
         {
-            if ( ((e2-1) != e1) && (lastSum > 0))
+            if ( ((e2-1) != e1) && (lastSum >= 0))
             {
+                //std::cout << "e2--" << std::endl;
                 e2--;
             }
             else
             {
+                //std::cout << "e1--" << std::endl;
                 if (e1 == nums.begin())
                     return;
                 e1--;
@@ -29,7 +41,7 @@ class Solution {
         }
         else if(sum<0)
         {
-            if ( ((e1+1) != e3) && (lastSum < 0) )
+            if ( ((e1+1) != e3) && (lastSum <= 0) )
             {
                 e2++;
             }
@@ -57,7 +69,7 @@ public:
     std::vector<std::vector<int>> threeSum(std::vector<int> & nums)
     {
         std::sort(nums.begin(), nums.end());
-        std::cout << "sorted  : ";
+        //std::cout << "sorted  : ";
         for (auto i : nums)
             std::cout << i << " ";
         std::cout << std::endl;
@@ -65,7 +77,8 @@ public:
         if (nums.size() < 3)
             return std::vector<std::vector<int>> {};
 
-        ElementInterator zeroElement = nums.begin() + nums.size()/2;
+        //ElementInterator zeroElement = nums.begin() + nums.size()/2;
+        ElementInterator zeroElement = findZeroElement(nums);
 
         check( (zeroElement-1), zeroElement, (zeroElement+1), nums, 0 );
 
@@ -80,7 +93,7 @@ int main( )
 {
     Solution solution;
 
-    std::vector<int> in{3,0,-2,-1,1,2};
+    std::vector<int> in{-1,0,1,2,-1,-4};
 
     auto result = solution.threeSum(in);
 
