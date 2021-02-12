@@ -41,5 +41,20 @@ int main( )
 {
     Solution solution;
 
+    int target = 7;
+    vector<int> in{2,3,6,7};
+
+    auto r = solution.combinationSum(in, target);
+
+    for (auto i : r)
+	{
+		std::cout << "# ";
+		for (auto j : i)
+		{
+			std::cout << j << " ";
+		}
+		std::cout << std::endl;
+	}
+
     return 0;
 }
