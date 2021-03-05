@@ -1,12 +1,15 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <sys/procfs.h>
+#include <sys/debug.h>
 
 struct dinfo_s {
     procfs_debuginfo    info;
     char                pathbuffer[PATH_MAX]; /* 1st byte is
                                                  info.path[0] */
 };
+
+struct _debug_process_info  myInfo;
 
 int main( )
 {
